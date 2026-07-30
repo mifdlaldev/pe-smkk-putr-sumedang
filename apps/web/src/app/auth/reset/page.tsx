@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 
 const apiUrl =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://127.0.0.1:8787";
+  "http://localhost:8787";
 
 const inputStyle: React.CSSProperties = {
   padding: "0.55rem 0.65rem",

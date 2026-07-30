@@ -98,10 +98,12 @@ cp apps/api/.dev.vars.example apps/api/.dev.vars
 # edit APP_ORIGIN / SESSION_SECRET
 npm run db:migrate:local
 npm run dev:api
-# → http://127.0.0.1:8787/health
+# → http://localhost:8787/health
 
 # Web (second terminal)
 cp apps/web/.env.example apps/web/.env.local
+# IMPORTANT: NEXT_PUBLIC_API_URL must use localhost (same host as browser).
+# localhost:3000 + 127.0.0.1:8787 = cross-site → session cookie not sent (401 after login).
 npm run dev:web
 # → http://localhost:3000
 ```

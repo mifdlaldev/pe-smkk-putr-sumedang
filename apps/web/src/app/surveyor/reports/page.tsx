@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 
 const apiUrl =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://127.0.0.1:8787";
+  "http://localhost:8787";
 
 type Report = {
   id: string;
