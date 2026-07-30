@@ -8,6 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Card,
   CardContent,
@@ -24,12 +32,12 @@ type Project = {
   updatedAt: string;
 };
 
+type ReportType = "LAPORAN1" | "LAPORAN2" | "BOTH";
+
 export default function SurveyorProjectsPage() {
   const [items, setItems] = useState<Project[]>([]);
   const [name, setName] = useState("");
-  const [reportType, setReportType] = useState<"LAPORAN1" | "LAPORAN2" | "BOTH">(
-    "LAPORAN1",
-  );
+  const [reportType, setReportType] = useState<ReportType>("LAPORAN1");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -89,21 +97,24 @@ export default function SurveyorProjectsPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="rt">Tipe laporan</Label>
-                <select
-                  id="rt"
+                <Label>Tipe laporan</Label>
+                <Select
                   value={reportType}
-                  onChange={(e) =>
-                    setReportType(
-                      e.target.value as "LAPORAN1" | "LAPORAN2" | "BOTH",
-                    )
-                  }
-                  className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm font-medium"
+                  onValueChange={(v) => {
+                    if (v === "LAPORAN1" || v === "LAPORAN2" || v === "BOTH") {
+                      setReportType(v);
+                    }
+                  }}
                 >
-                  <option value="LAPORAN1">Laporan 1</option>
-                  <option value="LAPORAN2">Laporan 2</option>
-                  <option value="BOTH">Keduanya</option>
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LAPORAN1">Laporan 1</SelectItem>
+                    <SelectItem value="LAPORAN2">Laporan 2</SelectItem>
+                    <SelectItem value="BOTH">Keduanya</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <Button type="submit" className="w-full">
                 Buat proyek
@@ -114,9 +125,9 @@ export default function SurveyorProjectsPage() {
 
         <div className="space-y-3">
           {error ? (
-            <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-              {error}
-            </p>
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           ) : null}
           {loading ? (
             <p className="text-sm font-medium text-muted-foreground">

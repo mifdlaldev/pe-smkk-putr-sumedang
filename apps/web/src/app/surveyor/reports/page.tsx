@@ -9,6 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Card,
   CardContent,
@@ -16,6 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 type Report = {
   id: string;
@@ -230,9 +239,9 @@ function ReportsInner() {
       </div>
 
       {error ? (
-        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-          {error}
-        </p>
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[280px_1fr_1fr]">
@@ -242,23 +251,29 @@ function ReportsInner() {
           </CardHeader>
           <CardContent>
             <form onSubmit={createReport} className="grid gap-3">
-              <select
-                value={templateId}
-                onChange={(e) => setTemplateId(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm font-medium"
-                required
+              <Select
+                value={templateId || undefined}
+                onValueChange={(v) => {
+                  if (typeof v === "string") setTemplateId(v);
+                }}
               >
-                <option value="">Pilih template…</option>
-                {templates.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name} ({t.reportType})
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pilih template…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.name} ({t.reportType})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {!templates.length ? (
-                <p className="text-xs font-medium text-amber-700">
-                  Butuh ADMIN buat form-template dulu.
-                </p>
+                <Alert variant="warning">
+                  <AlertDescription>
+                    Butuh ADMIN buat form-template dulu.
+                  </AlertDescription>
+                </Alert>
               ) : null}
               <Button type="submit" disabled={!templateId}>
                 Buat laporan
@@ -274,15 +289,15 @@ function ReportsInner() {
           </CardHeader>
           <CardContent className="space-y-2">
             {items.map((r) => (
-              <button
+              <Button
                 key={r.id}
                 type="button"
+                variant={activeId === r.id ? "default" : "outline"}
+                className={cn(
+                  "h-auto w-full justify-between px-3 py-2 text-left font-semibold",
+                  activeId === r.id && "bg-primary text-primary-foreground",
+                )}
                 onClick={() => void openReport(r.id)}
-                className={`flex w-full items-center justify-between rounded-md border px-3 py-2 text-left text-sm font-semibold transition-colors ${
-                  activeId === r.id
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card hover:bg-accent"
-                }`}
               >
                 <span className="truncate">
                   {r.reportTitle || r.id.slice(0, 8)}
@@ -293,7 +308,7 @@ function ReportsInner() {
                 >
                   {r.status}
                 </Badge>
-              </button>
+              </Button>
             ))}
           </CardContent>
         </Card>
@@ -324,9 +339,11 @@ function ReportsInner() {
                     Submit laporan
                   </Button>
                 ) : (
-                  <p className="text-sm font-semibold text-emerald-700">
-                    Sudah submitted — autosave off
-                  </p>
+                  <Alert variant="success">
+                    <AlertDescription>
+                      Sudah submitted — autosave off
+                    </AlertDescription>
+                  </Alert>
                 )}
               </>
             ) : (

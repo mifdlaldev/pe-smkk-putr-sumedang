@@ -6,6 +6,7 @@ import { apiFetch } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -71,7 +72,7 @@ export default function ResetPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background px-4">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-primary" />
-      <div className="pointer-events-none absolute inset-x-0 top-40 h-2 bg-brand-yellow" />
+      <div className="brand-rail pointer-events-none absolute inset-x-0 top-40" />
 
       <Card className="relative z-10 w-full max-w-md shadow-lg">
         <CardHeader>
@@ -124,14 +125,14 @@ export default function ResetPage() {
             </form>
           )}
           {message ? (
-            <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
-              {message}
-            </p>
+            <Alert variant="success">
+              <AlertDescription>{message}</AlertDescription>
+            </Alert>
           ) : null}
           {error ? (
-            <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-              {error}
-            </p>
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           ) : null}
           <p className="text-center text-sm">
             <Link
