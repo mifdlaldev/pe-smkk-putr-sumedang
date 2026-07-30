@@ -11,7 +11,10 @@ healthRoutes.get("/health", (c) => {
     version: c.env.APP_VERSION ?? "0.0.0",
     time: new Date().toISOString(),
   };
-  return c.json(body);
+  return c.json({
+    ...body,
+    storage: { documents: Boolean(c.env.DOCUMENTS) },
+  });
 });
 
 healthRoutes.get("/", (c) =>

@@ -52,3 +52,14 @@ export {
   laporan2AnswerItemSchema,
   formQuestionCreateSchema,
 } from "./reports";
+
+export {
+  filePurposeSchema,
+  FILE_LIMITS,
+  ALLOWED_MIME,
+  isAllowedMime,
+  maxBytesForPurpose,
+  safeFileName,
+  documentMetaSchema,
+} from "./files";
+export type { FilePurpose, AllowedMime } from "./files";

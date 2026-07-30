@@ -11,6 +11,7 @@ import { formTemplatesRoutes } from "./routes/admin/form-templates";
 import { formQuestionsRoutes } from "./routes/admin/form-questions";
 import { projectsRoutes } from "./routes/projects";
 import { reportsRoutes } from "./routes/reports";
+import { filesRoutes } from "./routes/files";
 
 const app = new Hono<AppEnv>();
 
@@ -36,6 +37,7 @@ app.use("*", async (c, next) => {
     origin,
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
+    exposeHeaders: ["Content-Disposition"],
     credentials: true,
     maxAge: 600,
   });
@@ -75,6 +77,7 @@ app.route("/", formTemplatesRoutes);
 app.route("/", formQuestionsRoutes);
 app.route("/", projectsRoutes);
 app.route("/", reportsRoutes);
+app.route("/", filesRoutes);
 
 app.notFound((c) =>
   c.json({ error: "Not found", code: "NOT_FOUND" }, 404),

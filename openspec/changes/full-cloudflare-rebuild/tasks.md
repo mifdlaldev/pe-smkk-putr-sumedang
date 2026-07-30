@@ -64,8 +64,8 @@
 
 ## P5 — R2, approvals, dashboard
 
-- [ ] R2 private upload/download authz
-- [ ] Avatar + document attach to answers
+- [x] R2 private upload/download authz (slice: API + metadata; UI attach later)
+- [ ] Avatar + document attach to answers (UI + L2 link)
 - [ ] Approvals multi-type
 - [ ] Dashboard stats (efficient queries)
 
@@ -97,3 +97,4 @@
 | 2026-07-30 | P1 verified: typecheck, vitest health, d1 migrate local, wrangler dry-run, next build, curl /health |
 | 2026-07-30 | Legacy tree removed; portfolio docs LICENSE/SECURITY/CONTRIBUTING/ARCHITECTURE; public repo cutover |
 | 2026-07-30 | P4: projects/reports/L1-L2 answers + draft autosave + ownership authz |
+| 2026-07-30 | P5 R2 slice: private DOCUMENTS binding, /files upload|list|download|delete |

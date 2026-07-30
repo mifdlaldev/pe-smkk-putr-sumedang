@@ -350,3 +350,35 @@ export const laporan2Answers = sqliteTable(
   },
   (t) => [index("laporan2_answers_report_idx").on(t.reportId)],
 );
+
+/**
+ * R2 object metadata (private bucket).
+ * Object key is server-built only — never accept client raw keys.
+ */
+export const documents = sqliteTable(
+  "documents",
+  {
+    id: text("id").primaryKey(),
+    /** R2 object key, e.g. reports/{reportId}/{id}-{safeName} */
+    objectKey: text("object_key").notNull().unique(),
+    purpose: text("purpose", {
+      enum: ["report_document", "avatar"],
+    }).notNull(),
+    reportId: text("report_id").references(() => reports.id, {
+      onDelete: "cascade",
+    }),
+    ownerUserId: text("owner_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    originalName: text("original_name").notNull(),
+    contentType: text("content_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    createdAt: text("created_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (t) => [
+    index("documents_owner_idx").on(t.ownerUserId),
+    index("documents_report_idx").on(t.reportId),
+  ],
+);

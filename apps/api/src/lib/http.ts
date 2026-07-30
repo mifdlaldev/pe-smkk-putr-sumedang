@@ -4,7 +4,7 @@ import type { AppEnv } from "../types";
 
 export function jsonError(
   c: Context<AppEnv>,
-  status: 400 | 401 | 403 | 404 | 409 | 500,
+  status: 400 | 401 | 403 | 404 | 409 | 500 | 503,
   error: string,
   code: string,
   details?: unknown,

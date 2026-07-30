@@ -5,7 +5,7 @@ compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-APP_VERSION = "0.2.0"
+APP_VERSION = "0.3.0"
 # APP_ORIGIN, SESSION_SECRET, EMAIL_DELIVERY in .dev.vars / dashboard
 
 [[d1_databases]]
@@ -15,7 +15,8 @@ database_id = "00000000-0000-0000-0000-000000000001"
 migrations_dir = "../../packages/db/migrations"
 preview_database_id = "local-pe-smkk-db"
 
-# R2 placeholder — create bucket before production deploy
-# [[r2_buckets]]
-# binding = "DOCUMENTS"
-# bucket_name = "pe-smkk-documents"
+# Private R2 — never public ACL. Local: wrangler simulates bucket.
+[[r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "pe-smkk-documents"
+preview_bucket_name = "pe-smkk-documents-local"
