@@ -89,6 +89,7 @@ export const formTemplateCreateSchema = z.object({
 export const formTemplateUpdateSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
   title: z.string().trim().max(200).optional().nullable(),
+  reportType: z.enum(["LAPORAN1", "LAPORAN2"]).optional(),
 });
 
 export const formSectionCreateSchema = z.object({

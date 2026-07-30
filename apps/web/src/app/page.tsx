@@ -88,6 +88,14 @@ export default async function HomePage() {
           Sign in
         </a>
         {" · "}
+        <a href="/surveyor/projects" style={{ color: "#93c5fd" }}>
+          Projects
+        </a>
+        {" · "}
+        <a href="/surveyor/reports" style={{ color: "#93c5fd" }}>
+          Reports
+        </a>
+        {" · "}
         Spec: <code>openspec/</code> · Rules: <code>AGENTS.md</code>
       </p>
     </main>

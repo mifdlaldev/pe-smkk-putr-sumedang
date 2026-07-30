@@ -45,12 +45,12 @@
 
 ## P4 — Surveyor projects & reports + autosave
 
-- [ ] `projects` entity + field values
-- [ ] Reports create/list/get
-- [ ] Draft PATCH batch + conflict policy
-- [ ] Client autosave queue + offline banner
-- [ ] Submit transition draft→submitted
-- [ ] L1/L2 answers model
+- [x] `projects` entity + field values
+- [x] Reports create/list/get
+- [x] Draft PATCH batch + conflict policy (revision 409)
+- [x] Client autosave queue + offline/pending/saved indicator
+- [x] Submit transition draft→submitted
+- [x] L1/L2 answers model
 
 ## P5 — R2, approvals, dashboard
 
@@ -86,3 +86,4 @@
 | 2026-07-30 | User “lanjut”; proposal approved; P1 monorepo + legacy/ move started |
 | 2026-07-30 | P1 verified: typecheck, vitest health, d1 migrate local, wrangler dry-run, next build, curl /health |
 | 2026-07-30 | Legacy tree removed; portfolio docs LICENSE/SECURITY/CONTRIBUTING/ARCHITECTURE; public repo cutover |
+| 2026-07-30 | P4: projects/reports/L1-L2 answers + draft autosave + ownership authz |

@@ -1,7 +1,8 @@
 /**
  * D1 / SQLite schema — PE-SMKK
+ * Domain aligned with legacy monolit (roles, L1/L2, draft/submit).
  */
-import { integer, sqliteTable, text, index } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const dinas = sqliteTable("dinas", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -80,7 +81,6 @@ export const systemSettings = sqliteTable("system_settings", {
     .$defaultFn(() => new Date().toISOString()),
 });
 
-/** Dynamic project form field definitions (per report type). */
 export const projectFields = sqliteTable(
   "project_fields",
   {
@@ -105,7 +105,6 @@ export const projectFields = sqliteTable(
       .notNull()
       .default("TEXT"),
     required: integer("required", { mode: "boolean" }).notNull().default(false),
-    /** JSON array of option strings for SELECT/CHECKBOX/RADIO */
     optionsJson: text("options_json"),
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: text("created_at")
@@ -118,10 +117,6 @@ export const projectFields = sqliteTable(
   (t) => [index("project_fields_report_type_idx").on(t.reportType)],
 );
 
-/**
- * Shared form template for Laporan 1 / 2 (one engine, type discriminant).
- * Sections/questions expand in later tasks without L1/L2 route forks.
- */
 export const formTemplates = sqliteTable("form_templates", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -152,23 +147,206 @@ export const formSections = sqliteTable(
   (t) => [index("form_sections_template_idx").on(t.formTemplateId)],
 );
 
-export const projects = sqliteTable("projects", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  reportType: text("report_type", {
-    enum: ["LAPORAN1", "LAPORAN2", "BOTH"],
-  }).notNull(),
-  status: text("status", { enum: ["draft", "submitted"] })
-    .notNull()
-    .default("draft"),
-  ownerUserId: text("owner_user_id")
-    .notNull()
-    .references(() => users.id),
-  dinasId: integer("dinas_id").references(() => dinas.id),
-  createdAt: text("created_at")
-    .notNull()
-    .$defaultFn(() => new Date().toISOString()),
-  updatedAt: text("updated_at")
-    .notNull()
-    .$defaultFn(() => new Date().toISOString()),
-});
+/** Optional subsection under section (legacy SubSection). */
+export const formSubsections = sqliteTable(
+  "form_subsections",
+  {
+    id: text("id").primaryKey(),
+    sectionId: text("section_id")
+      .notNull()
+      .references(() => formSections.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("form_subsections_section_idx").on(t.sectionId)],
+);
+
+/**
+ * Shared questions for L1/L2 (discriminant via template reportType).
+ * Extra meta: keterangan (L1), referensi / statusWajibOpsional (L2).
+ */
+export const formQuestions = sqliteTable(
+  "form_questions",
+  {
+    id: text("id").primaryKey(),
+    sectionId: text("section_id")
+      .notNull()
+      .references(() => formSections.id, { onDelete: "cascade" }),
+    subsectionId: text("subsection_id").references(() => formSubsections.id, {
+      onDelete: "set null",
+    }),
+    text: text("text").notNull(),
+    type: text("type").notNull().default("text"),
+    required: integer("required", { mode: "boolean" }).notNull().default(false),
+    sortOrder: integer("sort_order").notNull().default(0),
+    optionsJson: text("options_json"),
+    keterangan: text("keterangan"),
+    referensi: text("referensi"),
+    statusWajibOpsional: text("status_wajib_opsional"),
+  },
+  (t) => [index("form_questions_section_idx").on(t.sectionId)],
+);
+
+export const formSubquestions = sqliteTable(
+  "form_subquestions",
+  {
+    id: text("id").primaryKey(),
+    questionId: text("question_id")
+      .notNull()
+      .references(() => formQuestions.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+    keterangan: text("keterangan"),
+    referensi: text("referensi"),
+  },
+  (t) => [index("form_subquestions_question_idx").on(t.questionId)],
+);
+
+export const projects = sqliteTable(
+  "projects",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    reportType: text("report_type", {
+      enum: ["LAPORAN1", "LAPORAN2", "BOTH"],
+    }).notNull(),
+    status: text("status", { enum: ["draft", "submitted"] })
+      .notNull()
+      .default("draft"),
+    ownerUserId: text("owner_user_id")
+      .notNull()
+      .references(() => users.id),
+    dinasId: integer("dinas_id").references(() => dinas.id),
+    createdAt: text("created_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+    updatedAt: text("updated_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (t) => [index("projects_owner_idx").on(t.ownerUserId)],
+);
+
+/** Values for dynamic project fields (legacy ProjectFieldValue). */
+export const projectFieldValues = sqliteTable(
+  "project_field_values",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    fieldId: text("field_id")
+      .notNull()
+      .references(() => projectFields.id, { onDelete: "cascade" }),
+    value: text("value"),
+    createdAt: text("created_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+    updatedAt: text("updated_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (t) => [
+    uniqueIndex("project_field_values_project_field_uidx").on(
+      t.projectId,
+      t.fieldId,
+    ),
+    index("project_field_values_project_idx").on(t.projectId),
+  ],
+);
+
+export const reports = sqliteTable(
+  "reports",
+  {
+    id: text("id").primaryKey(),
+    reportTitle: text("report_title"),
+    totalScore: text("total_score"),
+    grade: text("grade"),
+    status: text("status", { enum: ["draft", "submitted"] })
+      .notNull()
+      .default("draft"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    projectId: text("project_id").references(() => projects.id, {
+      onDelete: "set null",
+    }),
+    formTemplateId: text("form_template_id")
+      .notNull()
+      .references(() => formTemplates.id),
+    /** Optimistic concurrency for draft autosave */
+    revision: integer("revision").notNull().default(0),
+    submittedAt: text("submitted_at"),
+    createdAt: text("created_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+    updatedAt: text("updated_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (t) => [
+    index("reports_user_idx").on(t.userId),
+    index("reports_project_idx").on(t.projectId),
+  ],
+);
+
+/** Laporan 1 answers — domain fields match legacy. */
+export const laporan1Answers = sqliteTable(
+  "laporan1_answers",
+  {
+    id: text("id").primaryKey(),
+    reportId: text("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    questionId: text("question_id").references(() => formQuestions.id, {
+      onDelete: "cascade",
+    }),
+    subQuestionId: text("sub_question_id").references(
+      () => formSubquestions.id,
+      { onDelete: "cascade" },
+    ),
+    adaTidakAda: text("ada_tidak_ada"),
+    hasil: text("hasil"),
+    sumberDokumen: text("sumber_dokumen"),
+    createdAt: text("created_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+    updatedAt: text("updated_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (t) => [index("laporan1_answers_report_idx").on(t.reportId)],
+);
+
+/** Laporan 2 answers — domain fields match legacy. */
+export const laporan2Answers = sqliteTable(
+  "laporan2_answers",
+  {
+    id: text("id").primaryKey(),
+    reportId: text("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    questionId: text("question_id").references(() => formQuestions.id, {
+      onDelete: "cascade",
+    }),
+    subQuestionId: text("sub_question_id").references(
+      () => formSubquestions.id,
+      { onDelete: "cascade" },
+    ),
+    lengkap: text("lengkap"),
+    kurangLengkap: text("kurang_lengkap"),
+    tidakLengkap: text("tidak_lengkap"),
+    hasilObservasi: text("hasil_observasi"),
+    dokumentasi: text("dokumentasi"),
+    fileName: text("file_name"),
+    fileType: text("file_type"),
+    fileSize: integer("file_size"),
+    createdAt: text("created_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+    updatedAt: text("updated_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (t) => [index("laporan2_answers_report_idx").on(t.reportId)],
+);

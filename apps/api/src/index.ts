@@ -8,6 +8,9 @@ import { usersRoutes } from "./routes/admin/users";
 import { settingsRoutes } from "./routes/admin/settings";
 import { projectFieldsRoutes } from "./routes/admin/project-fields";
 import { formTemplatesRoutes } from "./routes/admin/form-templates";
+import { formQuestionsRoutes } from "./routes/admin/form-questions";
+import { projectsRoutes } from "./routes/projects";
+import { reportsRoutes } from "./routes/reports";
 
 const app = new Hono<AppEnv>();
 
@@ -69,6 +72,9 @@ app.route("/", usersRoutes);
 app.route("/", settingsRoutes);
 app.route("/", projectFieldsRoutes);
 app.route("/", formTemplatesRoutes);
+app.route("/", formQuestionsRoutes);
+app.route("/", projectsRoutes);
+app.route("/", reportsRoutes);
 
 app.notFound((c) =>
   c.json({ error: "Not found", code: "NOT_FOUND" }, 404),
