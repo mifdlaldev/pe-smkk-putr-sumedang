@@ -9,6 +9,7 @@
     "deploy": "wrangler deploy",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "migrate:local": "wrangler d1 migrations apply pe-smkk-db --local",
+    "seed:admin": "tsx scripts/seed-admin.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250317.0",
     "typescript": "^5.8.2",
+    "tsx": "^4.20.5",
     "vitest": "^3.0.9",
     "wrangler": "^4.4.0"
   }

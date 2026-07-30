@@ -3,6 +3,11 @@ import { cors } from "hono/cors";
 import type { AppEnv } from "./types";
 import { healthRoutes } from "./routes/health";
 import { authRoutes } from "./routes/auth";
+import { dinasRoutes } from "./routes/admin/dinas";
+import { usersRoutes } from "./routes/admin/users";
+import { settingsRoutes } from "./routes/admin/settings";
+import { projectFieldsRoutes } from "./routes/admin/project-fields";
+import { formTemplatesRoutes } from "./routes/admin/form-templates";
 
 const app = new Hono<AppEnv>();
 
@@ -59,6 +64,11 @@ app.use("*", async (c, next) => {
 
 app.route("/", healthRoutes);
 app.route("/", authRoutes);
+app.route("/", dinasRoutes);
+app.route("/", usersRoutes);
+app.route("/", settingsRoutes);
+app.route("/", projectFieldsRoutes);
+app.route("/", formTemplatesRoutes);
 
 app.notFound((c) =>
   c.json({ error: "Not found", code: "NOT_FOUND" }, 404),

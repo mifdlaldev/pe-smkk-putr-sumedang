@@ -36,11 +36,12 @@
 
 ## P3 — Admin core
 
-- [ ] Dinas CRUD (admin)
-- [ ] Users CRUD (admin) — **no open register**
-- [ ] System settings
-- [ ] Project field definitions
-- [ ] Form template builder abstraction (shared L1/L2)
+- [x] Dinas CRUD (admin)
+- [x] Users CRUD (admin) — **no open register**
+- [x] System settings
+- [x] Project field definitions
+- [x] Form template builder abstraction (shared L1/L2 skeleton + sections)
+- [x] Local-only `seed:admin` script
 
 ## P4 — Surveyor projects & reports + autosave
 

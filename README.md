@@ -116,6 +116,7 @@ npm run dev:web
 | `npm run build:web` | Next production build |
 | `npm run db:generate` | Drizzle SQL from schema |
 | `npm run db:migrate:local` | Apply D1 migrations locally |
+| `npm run seed:admin` | Local-only admin user (wrangler d1 — not a public API) |
 
 ---
 

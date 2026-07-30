@@ -15,6 +15,7 @@
     "typecheck": "npm run typecheck -w @pe-smkk/shared && npm run typecheck -w @pe-smkk/db && npm run typecheck -w @pe-smkk/api && npm run typecheck -w @pe-smkk/web",
     "db:generate": "npm run generate -w @pe-smkk/db",
     "db:migrate:local": "npm run migrate:local -w @pe-smkk/api",
+    "seed:admin": "npm run seed:admin -w @pe-smkk/api",
     "test:api": "npm run test -w @pe-smkk/api"
   },
   "engines": {

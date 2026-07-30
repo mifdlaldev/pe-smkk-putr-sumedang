@@ -8,5 +8,5 @@
     "jsxImportSource": "hono/jsx"
   },
   "include": ["src/**/*"],
-  "exclude": ["tests", "dist", "node_modules"]
+  "exclude": ["tests", "scripts", "dist", "node_modules"]
 }

@@ -1,6 +1,5 @@
 /**
  * D1 / SQLite schema — PE-SMKK
- * Auth: users + server-side sessions + rate-limit buckets.
  */
 import { integer, sqliteTable, text, index } from "drizzle-orm/sqlite-core";
 
@@ -30,7 +29,6 @@ export const users = sqliteTable("users", {
     .default("ACTIVE"),
   profileImage: text("profile_image"),
   profileImagePath: text("profile_image_path"),
-  /** SHA-256 hex of one-time reset token; never store raw token. */
   resetTokenHash: text("reset_token_hash"),
   resetTokenExpiry: text("reset_token_expiry"),
   dinasId: integer("dinas_id").references(() => dinas.id),
@@ -42,10 +40,6 @@ export const users = sqliteTable("users", {
     .$defaultFn(() => new Date().toISOString()),
 });
 
-/**
- * Opaque session tokens: browser holds raw id in HttpOnly cookie;
- * DB stores only token_hash (SHA-256).
- */
 export const sessions = sqliteTable(
   "sessions",
   {
@@ -70,14 +64,94 @@ export const sessions = sqliteTable(
   (t) => [index("sessions_user_id_idx").on(t.userId)],
 );
 
-/** Sliding window counters for login / reset (keyed by action + ip hash). */
 export const authRateLimits = sqliteTable("auth_rate_limits", {
   key: text("key").primaryKey(),
   count: integer("count").notNull().default(0),
   windowStart: text("window_start").notNull(),
 });
 
-/** Real project entity (legacy only had free-form projectId strings). */
+export const systemSettings = sqliteTable("system_settings", {
+  id: text("id").primaryKey(),
+  keyName: text("key_name").notNull().unique(),
+  value: text("value"),
+  description: text("description"),
+  updatedAt: text("updated_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+});
+
+/** Dynamic project form field definitions (per report type). */
+export const projectFields = sqliteTable(
+  "project_fields",
+  {
+    id: text("id").primaryKey(),
+    label: text("label").notNull(),
+    reportType: text("report_type", {
+      enum: ["LAPORAN1", "LAPORAN2", "BOTH"],
+    }).notNull(),
+    fieldType: text("field_type", {
+      enum: [
+        "TEXT",
+        "NUMBER",
+        "SELECT",
+        "CHECKBOX",
+        "RADIO",
+        "TEXTAREA",
+        "DATE",
+        "FILE",
+        "ANGKA",
+      ],
+    })
+      .notNull()
+      .default("TEXT"),
+    required: integer("required", { mode: "boolean" }).notNull().default(false),
+    /** JSON array of option strings for SELECT/CHECKBOX/RADIO */
+    optionsJson: text("options_json"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: text("created_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+    updatedAt: text("updated_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (t) => [index("project_fields_report_type_idx").on(t.reportType)],
+);
+
+/**
+ * Shared form template for Laporan 1 / 2 (one engine, type discriminant).
+ * Sections/questions expand in later tasks without L1/L2 route forks.
+ */
+export const formTemplates = sqliteTable("form_templates", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  title: text("title"),
+  reportType: text("report_type", {
+    enum: ["LAPORAN1", "LAPORAN2"],
+  }).notNull(),
+  createdById: text("created_by_id").references(() => users.id),
+  createdAt: text("created_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+  updatedAt: text("updated_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+});
+
+export const formSections = sqliteTable(
+  "form_sections",
+  {
+    id: text("id").primaryKey(),
+    formTemplateId: text("form_template_id")
+      .notNull()
+      .references(() => formTemplates.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    description: text("description"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("form_sections_template_idx").on(t.formTemplateId)],
+);
+
 export const projects = sqliteTable("projects", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
