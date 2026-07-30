@@ -71,7 +71,7 @@
 - [ ] Import to D1 + verify counts
 - [ ] Cutover checklist
 - [x] Archive/remove legacy tree (explicit task — user portfolio cleanup 2026-07-30)
-- [ ] Public repo readiness sign-off
+- [x] Public repo readiness sign-off (https://github.com/mifdlaldev/pe-smkk-putr-sumedang)
 
 ---
 
