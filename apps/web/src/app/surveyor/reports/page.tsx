@@ -1,12 +1,21 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-
-const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8787";
+import { AppShell } from "@/components/app-shell";
+import { apiFetch } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 type Report = {
   id: string;
@@ -26,23 +35,6 @@ type Template = {
 
 type SaveState = "idle" | "pending" | "saving" | "saved" | "error" | "offline";
 
-async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${apiUrl}${path}`, {
-    ...init,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  });
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error((json as { error?: string }).error ?? res.statusText);
-  }
-  return json as T;
-}
-
-/** Debounce batch draft PATCH — never per-keystroke D1 writes. */
 function useDraftAutosave(
   reportId: string | null,
   revision: number,
@@ -70,7 +62,7 @@ function useDraftAutosave(
     timer.current = setTimeout(async () => {
       setState("saving");
       try {
-        const data = await api<{ data: { report: Report } }>(
+        const data = await apiFetch<{ data: { report: Report } }>(
           `/reports/${reportId}/draft`,
           {
             method: "PATCH",
@@ -93,6 +85,23 @@ function useDraftAutosave(
   }, [enabled, reportId, payload.reportTitle, JSON.stringify(payload.answers)]);
 
   return { state, revision: rev };
+}
+
+function saveBadge(state: SaveState) {
+  switch (state) {
+    case "saved":
+      return <Badge variant="success">tersimpan</Badge>;
+    case "saving":
+      return <Badge variant="secondary">menyimpan…</Badge>;
+    case "pending":
+      return <Badge variant="warning">menunggu</Badge>;
+    case "offline":
+      return <Badge variant="danger">offline</Badge>;
+    case "error":
+      return <Badge variant="danger">gagal</Badge>;
+    default:
+      return <Badge variant="outline">siap</Badge>;
+  }
 }
 
 function ReportsInner() {
@@ -126,10 +135,10 @@ function ReportsInner() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const r = await api<{ data: { items: Report[] } }>("/reports");
+      const r = await apiFetch<{ data: { items: Report[] } }>("/reports");
       setItems(r.data.items);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Load failed");
+      setError(e instanceof Error ? e.message : "Gagal muat");
     }
   }, []);
 
@@ -137,7 +146,7 @@ function ReportsInner() {
     void load();
     void (async () => {
       try {
-        const data = await api<{ data: { items: Template[] } }>(
+        const data = await apiFetch<{ data: { items: Template[] } }>(
           "/admin/form-templates",
         );
         setTemplates(data.data.items);
@@ -148,11 +157,11 @@ function ReportsInner() {
     })();
   }, [load]);
 
-  async function createReport(e: React.FormEvent) {
+  async function createReport(e: FormEvent) {
     e.preventDefault();
     setError(null);
     try {
-      const data = await api<{ data: { report: Report } }>("/reports", {
+      const data = await apiFetch<{ data: { report: Report } }>("/reports", {
         method: "POST",
         body: JSON.stringify({
           formTemplateId: templateId,
@@ -166,14 +175,14 @@ function ReportsInner() {
       setTitle(data.data.report.reportTitle ?? "");
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Create failed");
+      setError(err instanceof Error ? err.message : "Gagal buat");
     }
   }
 
   async function openReport(id: string) {
     setError(null);
     try {
-      const data = await api<{
+      const data = await apiFetch<{
         data: { report: Report; answers: unknown[] };
       }>(`/reports/${id}`);
       setActiveId(data.data.report.id);
@@ -182,7 +191,7 @@ function ReportsInner() {
       setTitle(data.data.report.reportTitle ?? "");
       setAnswersText(JSON.stringify(data.data.answers ?? [], null, 2));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Open failed");
+      setError(err instanceof Error ? err.message : "Gagal buka");
     }
   }
 
@@ -190,7 +199,7 @@ function ReportsInner() {
     if (!activeId) return;
     setError(null);
     try {
-      const data = await api<{ data: { report: Report } }>(
+      const data = await apiFetch<{ data: { report: Report } }>(
         `/reports/${activeId}/submit`,
         { method: "POST", body: "{}" },
       );
@@ -198,136 +207,137 @@ function ReportsInner() {
       setActiveRevision(data.data.report.revision);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Submit failed");
+      setError(err instanceof Error ? err.message : "Gagal submit");
     }
   }
 
   return (
-    <main style={pageStyle}>
-      <p style={{ opacity: 0.6, fontSize: 13 }}>
-        <Link href="/surveyor/projects" style={{ color: "#93c5fd" }}>
-          Projects
-        </Link>
-        {" · "}
-        <Link href="/auth/login" style={{ color: "#93c5fd" }}>
-          Login
-        </Link>
-      </p>
-      <h1 style={{ fontSize: "1.5rem" }}>Reports</h1>
-      <p style={{ opacity: 0.7, fontSize: 14 }}>
-        Draft autosave debounce ~2.5s · status:{" "}
-        <strong>{autosave.state}</strong>
-        {activeId ? ` · rev ${autosave.revision}` : null}
-      </p>
-      {projectId ? (
-        <p style={{ fontSize: 13, opacity: 0.65 }}>projectId={projectId}</p>
+    <AppShell
+      title="Laporan"
+      subtitle="Draft autosave debounce ~2.5s · L1/L2 answers batch"
+    >
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        {saveBadge(autosave.state)}
+        {activeId ? (
+          <span className="text-xs font-semibold text-muted-foreground">
+            rev {autosave.revision}
+            {projectId ? ` · project ${projectId.slice(0, 8)}…` : ""}
+          </span>
+        ) : null}
+        <Button asChild variant="outline" size="sm">
+          <Link href="/surveyor/projects">← Proyek</Link>
+        </Button>
+      </div>
+
+      {error ? (
+        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+          {error}
+        </p>
       ) : null}
 
-      <form
-        onSubmit={createReport}
-        style={{ display: "grid", gap: 8, maxWidth: 480 }}
-      >
-        <select
-          value={templateId}
-          onChange={(e) => setTemplateId(e.target.value)}
-          style={inputStyle}
-          required
-        >
-          <option value="">Pilih form template…</option>
-          {templates.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name} ({t.reportType})
-            </option>
-          ))}
-        </select>
-        {!templates.length ? (
-          <p style={{ fontSize: 13, color: "#fcd34d" }}>
-            Belum ada template. Login ADMIN → POST /admin/form-templates dulu.
-          </p>
-        ) : null}
-        <button type="submit" style={btnStyle} disabled={!templateId}>
-          Buat laporan draft
-        </button>
-      </form>
-
-      {error ? <p style={{ color: "#f6a5a5" }}>{error}</p> : null}
-
-      <div
-        style={{
-          display: "grid",
-          gap: 16,
-          marginTop: 24,
-          gridTemplateColumns: "1fr 1fr",
-        }}
-      >
-        <div>
-          <h2 style={{ fontSize: "1rem" }}>Daftar</h2>
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {items.map((r) => (
-              <li key={r.id} style={{ marginBottom: 6 }}>
-                <button
-                  type="button"
-                  onClick={() => void openReport(r.id)}
-                  style={{
-                    ...btnStyle,
-                    background: activeId === r.id ? "#1d4ed8" : "#1e293b",
-                    width: "100%",
-                    textAlign: "left",
-                  }}
-                >
-                  {r.reportTitle || r.id.slice(0, 8)} · {r.status}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h2 style={{ fontSize: "1rem" }}>Editor draft</h2>
-          {activeId ? (
-            <>
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                disabled={activeStatus !== "draft"}
-                placeholder="Judul laporan"
-                style={{ ...inputStyle, width: "100%", marginBottom: 8 }}
-              />
-              <textarea
-                value={answersText}
-                onChange={(e) => setAnswersText(e.target.value)}
-                disabled={activeStatus !== "draft"}
-                rows={12}
-                style={{
-                  ...inputStyle,
-                  width: "100%",
-                  fontFamily: "ui-monospace, monospace",
-                  fontSize: 12,
-                }}
-                placeholder='JSON answers, e.g. [{"questionId":"...","adaTidakAda":"Ada"}]'
-              />
-              <p style={{ fontSize: 12, opacity: 0.6 }}>
-                Autosave batch JSON (format L1/L2 legacy).
-              </p>
-              {activeStatus === "draft" ? (
-                <button
-                  type="button"
-                  onClick={() => void submit()}
-                  style={btnStyle}
-                >
-                  Submit laporan
-                </button>
-              ) : (
-                <p style={{ color: "#86efac" }}>
-                  Sudah submitted — autosave off
+      <div className="grid gap-6 lg:grid-cols-[280px_1fr_1fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Buat draft</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={createReport} className="grid gap-3">
+              <select
+                value={templateId}
+                onChange={(e) => setTemplateId(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm font-medium"
+                required
+              >
+                <option value="">Pilih template…</option>
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} ({t.reportType})
+                  </option>
+                ))}
+              </select>
+              {!templates.length ? (
+                <p className="text-xs font-medium text-amber-700">
+                  Butuh ADMIN buat form-template dulu.
                 </p>
-              )}
-            </>
-          ) : (
-            <p style={{ opacity: 0.6 }}>Pilih atau buat laporan</p>
-          )}
-        </div>
+              ) : null}
+              <Button type="submit" disabled={!templateId}>
+                Buat laporan
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Daftar</CardTitle>
+            <CardDescription>{items.length} laporan</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {items.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => void openReport(r.id)}
+                className={`flex w-full items-center justify-between rounded-md border px-3 py-2 text-left text-sm font-semibold transition-colors ${
+                  activeId === r.id
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card hover:bg-accent"
+                }`}
+              >
+                <span className="truncate">
+                  {r.reportTitle || r.id.slice(0, 8)}
+                </span>
+                <Badge
+                  variant={r.status === "submitted" ? "success" : "warning"}
+                  className="ml-2 shrink-0"
+                >
+                  {r.status}
+                </Badge>
+              </button>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Editor</CardTitle>
+            <CardDescription>JSON answers L1/L2 (batch)</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {activeId ? (
+              <>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  disabled={activeStatus !== "draft"}
+                  placeholder="Judul laporan"
+                />
+                <Textarea
+                  value={answersText}
+                  onChange={(e) => setAnswersText(e.target.value)}
+                  disabled={activeStatus !== "draft"}
+                  rows={12}
+                  className="font-mono text-xs"
+                />
+                {activeStatus === "draft" ? (
+                  <Button variant="yellow" onClick={() => void submit()}>
+                    Submit laporan
+                  </Button>
+                ) : (
+                  <p className="text-sm font-semibold text-emerald-700">
+                    Sudah submitted — autosave off
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-sm font-medium text-muted-foreground">
+                Pilih atau buat laporan
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
-    </main>
+    </AppShell>
   );
 }
 
@@ -335,40 +345,12 @@ export default function SurveyorReportsPage() {
   return (
     <Suspense
       fallback={
-        <main style={pageStyle}>
-          <p style={{ opacity: 0.6 }}>Loading reports…</p>
-        </main>
+        <div className="flex min-h-screen items-center justify-center text-sm font-semibold text-muted-foreground">
+          Memuat laporan…
+        </div>
       }
     >
       <ReportsInner />
     </Suspense>
   );
 }
-
-const pageStyle: React.CSSProperties = {
-  maxWidth: 960,
-  margin: "0 auto",
-  padding: "2rem 1.25rem",
-  fontFamily: "system-ui, sans-serif",
-  color: "#e8eefc",
-  minHeight: "100vh",
-  background: "#0b1220",
-};
-
-const inputStyle: React.CSSProperties = {
-  padding: "0.55rem 0.65rem",
-  borderRadius: 8,
-  border: "1px solid #243049",
-  background: "#121a2b",
-  color: "#e8eefc",
-};
-
-const btnStyle: React.CSSProperties = {
-  padding: "0.55rem 0.85rem",
-  borderRadius: 8,
-  border: "none",
-  background: "#3b82f6",
-  color: "#fff",
-  fontWeight: 600,
-  cursor: "pointer",
-};

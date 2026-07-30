@@ -1,11 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-
-const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8787";
+import { AppShell } from "@/components/app-shell";
+import { apiFetch } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 type Project = {
   id: string;
@@ -14,22 +23,6 @@ type Project = {
   status: string;
   updatedAt: string;
 };
-
-async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${apiUrl}${path}`, {
-    ...init,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  });
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error((json as { error?: string }).error ?? res.statusText);
-  }
-  return json as T;
-}
 
 export default function SurveyorProjectsPage() {
   const [items, setItems] = useState<Project[]>([]);
@@ -44,10 +37,10 @@ export default function SurveyorProjectsPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await api<{ data: { items: Project[] } }>("/projects");
+      const data = await apiFetch<{ data: { items: Project[] } }>("/projects");
       setItems(data.data.items);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      setError(e instanceof Error ? e.message : "Gagal muat");
     } finally {
       setLoading(false);
     }
@@ -57,117 +50,112 @@ export default function SurveyorProjectsPage() {
     void load();
   }, [load]);
 
-  async function createProject(e: React.FormEvent) {
+  async function createProject(e: FormEvent) {
     e.preventDefault();
     setError(null);
     try {
-      await api("/projects", {
+      await apiFetch("/projects", {
         method: "POST",
         body: JSON.stringify({ name, reportType }),
       });
       setName("");
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Create failed");
+      setError(err instanceof Error ? err.message : "Gagal buat");
     }
   }
 
   return (
-    <main style={pageStyle}>
-      <p style={{ opacity: 0.6, fontSize: 13 }}>
-        <Link href="/" style={{ color: "#93c5fd" }}>
-          Home
-        </Link>
-        {" · "}
-        <Link href="/surveyor/reports" style={{ color: "#93c5fd" }}>
-          Reports
-        </Link>
-      </p>
-      <h1 style={{ fontSize: "1.5rem" }}>Projects</h1>
-      <p style={{ opacity: 0.7, fontSize: 14 }}>
-        Flow sama monolit: surveyor isi informasi proyek (field dinamis admin).
-      </p>
+    <AppShell
+      title="Proyek"
+      subtitle="Informasi paket / proyek lapangan (field dinamis admin)"
+    >
+      <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Proyek baru</CardTitle>
+            <CardDescription>Flow sama monolit create-project</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={createProject} className="grid gap-3">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Nama paket</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  placeholder="Nama paket pekerjaan"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="rt">Tipe laporan</Label>
+                <select
+                  id="rt"
+                  value={reportType}
+                  onChange={(e) =>
+                    setReportType(
+                      e.target.value as "LAPORAN1" | "LAPORAN2" | "BOTH",
+                    )
+                  }
+                  className="flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm font-medium"
+                >
+                  <option value="LAPORAN1">Laporan 1</option>
+                  <option value="LAPORAN2">Laporan 2</option>
+                  <option value="BOTH">Keduanya</option>
+                </select>
+              </div>
+              <Button type="submit" className="w-full">
+                Buat proyek
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-      <form onSubmit={createProject} style={{ display: "grid", gap: 8, maxWidth: 420 }}>
-        <input
-          placeholder="Nama paket / proyek"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          style={inputStyle}
-        />
-        <select
-          value={reportType}
-          onChange={(e) =>
-            setReportType(e.target.value as "LAPORAN1" | "LAPORAN2" | "BOTH")
-          }
-          style={inputStyle}
-        >
-          <option value="LAPORAN1">Laporan 1</option>
-          <option value="LAPORAN2">Laporan 2</option>
-          <option value="BOTH">Both</option>
-        </select>
-        <button type="submit" style={btnStyle}>
-          Buat proyek
-        </button>
-      </form>
-
-      {error ? <p style={{ color: "#f6a5a5" }}>{error}</p> : null}
-      {loading ? <p style={{ opacity: 0.6 }}>Loading…</p> : null}
-
-      <ul style={{ listStyle: "none", padding: 0, marginTop: 24 }}>
-        {items.map((p) => (
-          <li
-            key={p.id}
-            style={{
-              border: "1px solid #243049",
-              borderRadius: 10,
-              padding: "0.75rem 1rem",
-              marginBottom: 8,
-              background: "#121a2b",
-            }}
-          >
-            <strong>{p.name}</strong>
-            <div style={{ fontSize: 13, opacity: 0.7 }}>
-              {p.reportType} · {p.status}
-            </div>
-            <Link
-              href={`/surveyor/reports?projectId=${p.id}`}
-              style={{ color: "#93c5fd", fontSize: 13 }}
-            >
-              Buat / lihat laporan
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </main>
+        <div className="space-y-3">
+          {error ? (
+            <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+              {error}
+            </p>
+          ) : null}
+          {loading ? (
+            <p className="text-sm font-medium text-muted-foreground">
+              Memuat…
+            </p>
+          ) : null}
+          {items.map((p) => (
+            <Card key={p.id}>
+              <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+                <div>
+                  <p className="font-bold text-primary">{p.name}</p>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {p.reportType} · diperbarui {p.updatedAt.slice(0, 10)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={p.status === "submitted" ? "success" : "warning"}
+                  >
+                    {p.status}
+                  </Badge>
+                  <Button asChild size="sm" variant="yellow">
+                    <Link href={`/surveyor/reports?projectId=${p.id}`}>
+                      Laporan
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          {!loading && !items.length ? (
+            <Card>
+              <CardContent className="p-6 text-sm font-medium text-muted-foreground">
+                Belum ada proyek. Buat di form kiri.
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
+      </div>
+    </AppShell>
   );
 }
-
-const pageStyle: React.CSSProperties = {
-  maxWidth: 720,
-  margin: "0 auto",
-  padding: "2rem 1.25rem",
-  fontFamily: "system-ui, sans-serif",
-  color: "#e8eefc",
-  minHeight: "100vh",
-  background: "#0b1220",
-};
-
-const inputStyle: React.CSSProperties = {
-  padding: "0.55rem 0.65rem",
-  borderRadius: 8,
-  border: "1px solid #243049",
-  background: "#121a2b",
-  color: "#e8eefc",
-};
-
-const btnStyle: React.CSSProperties = {
-  padding: "0.65rem 1rem",
-  borderRadius: 8,
-  border: "none",
-  background: "#3b82f6",
-  color: "#fff",
-  fontWeight: 600,
-  cursor: "pointer",
-};

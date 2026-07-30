@@ -52,6 +52,16 @@
 - [x] Submit transition draft→submitted
 - [x] L1/L2 answers model
 
+## P8 — UI design system (parity monolit + shadcn)
+
+- [x] Brand tokens: navy `#173e5e` / `#173f5f`, accent yellow, white surfaces
+- [x] Tailwind + shadcn-style primitives (Button, Input, Card, Badge, …)
+- [x] Field-bold typography (IBM Plex Sans)
+- [x] App shell sidebar (role nav mirror monolit)
+- [x] Login / reset restyle
+- [x] Surveyor projects/reports restyle
+- [x] Admin shell routes placeholders
+
 ## P5 — R2, approvals, dashboard
 
 - [ ] R2 private upload/download authz

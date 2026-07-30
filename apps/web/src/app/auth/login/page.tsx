@@ -1,19 +1,19 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8787";
-
-const inputStyle: React.CSSProperties = {
-  padding: "0.55rem 0.65rem",
-  borderRadius: 8,
-  border: "1px solid #243049",
-  background: "#121a2b",
-  color: "#e8eefc",
-};
+import { apiFetch } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,107 +28,91 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/auth/login`, {
+      const data = await apiFetch<{
+        data: { user: { role: string } };
+      }>("/auth/login", {
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, rememberMe }),
       });
-      const json = (await res.json()) as {
-        error?: string;
-        data?: { user: { role: string } };
-      };
-      if (!res.ok) {
-        setError(json.error ?? "Login failed");
-        return;
-      }
-      router.push("/");
+      const role = data.data.user.role;
+      router.push(
+        role === "ADMIN" ? "/dashboard/admin" : "/dashboard/surveyor",
+      );
       router.refresh();
-    } catch {
-      setError("Network error — check API is running");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login gagal");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main
-      style={{
-        maxWidth: 400,
-        margin: "0 auto",
-        padding: "3rem 1.25rem",
-        fontFamily: "system-ui, sans-serif",
-        color: "#e8eefc",
-      }}
-    >
-      <h1 style={{ fontSize: "1.5rem" }}>Sign in</h1>
-      <p style={{ opacity: 0.7, fontSize: 14 }}>
-        PE-SMKK · session cookie · credentials never stored in localStorage
-      </p>
-      <form
-        onSubmit={onSubmit}
-        style={{ display: "grid", gap: 12, marginTop: 24 }}
-      >
-        <label style={{ display: "grid", gap: 4, fontSize: 14 }}>
-          Username
-          <input
-            autoComplete="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            style={inputStyle}
-          />
-        </label>
-        <label style={{ display: "grid", gap: 4, fontSize: 14 }}>
-          Password
-          <input
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={inputStyle}
-          />
-        </label>
-        <label
-          style={{
-            display: "flex",
-            gap: 8,
-            alignItems: "center",
-            fontSize: 14,
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-          />
-          Remember me (30 days)
-        </label>
-        {error ? (
-          <p style={{ color: "#f6a5a5", fontSize: 14, margin: 0 }}>{error}</p>
-        ) : null}
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: "0.65rem 1rem",
-            borderRadius: 8,
-            border: "none",
-            background: "#3b82f6",
-            color: "#fff",
-            fontWeight: 600,
-            cursor: loading ? "wait" : "pointer",
-          }}
-        >
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
-      <p style={{ marginTop: 16, fontSize: 13, opacity: 0.55 }}>
-        <a href="/auth/reset" style={{ color: "#93c5fd" }}>
-          Forgot password
-        </a>
-      </p>
-    </main>
+    <div className="relative flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-primary" />
+      <div className="pointer-events-none absolute inset-x-0 top-40 h-2 bg-brand-yellow" />
+
+      <Card className="relative z-10 w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-3 text-center">
+          <div className="mx-auto flex size-14 items-center justify-center rounded-xl bg-primary text-lg font-black text-primary-foreground">
+            PE
+          </div>
+          <CardTitle className="text-2xl text-primary">Masuk PE-SMKK</CardTitle>
+          <CardDescription className="font-medium">
+            Pemantauan Keselamatan Konstruksi · PUTR Sumedang
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={onSubmit} className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <label className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="size-4 rounded border-input accent-primary"
+              />
+              Ingat sesi (30 hari)
+            </label>
+            {error ? (
+              <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                {error}
+              </p>
+            ) : null}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Memproses…" : "Masuk"}
+            </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              Lupa password?{" "}
+              <Link
+                href="/auth/reset"
+                className="font-semibold text-primary underline-offset-4 hover:underline"
+              >
+                Reset
+              </Link>
+            </p>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
