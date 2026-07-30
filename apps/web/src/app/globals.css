@@ -1,8 +1,14 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
-/* PE-SMKK brand — navy + yellow + white (legacy monolit) */
+/**
+ * PE-SMKK design tokens
+ * Brand from monolit PKL: navy #173e5e / #173f5f + yellow #f5c518 + white
+ * Stack: shadcn base-lyra + frontend-design discipline (Operate surface)
+ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -27,58 +33,128 @@
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-ring: var(--sidebar-ring);
   --color-brand-yellow: var(--brand-yellow);
   --color-brand-yellow-foreground: var(--brand-yellow-foreground);
-  --font-sans: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --font-sans: "IBM Plex Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
+  --font-heading: "IBM Plex Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) * 1.8);
 }
 
 :root {
   --radius: 0.5rem;
-  /* White surfaces — field daylight readability */
+  /* Field daylight surfaces */
   --background: #f4f7fb;
   --foreground: #0f1b2d;
   --card: #ffffff;
   --card-foreground: #0f1b2d;
   --popover: #ffffff;
   --popover-foreground: #0f1b2d;
-  /* Navy primary (legacy button #173e5e / sidebar #173f5f) */
+  /* Navy primary (legacy monolit) */
   --primary: #173e5e;
   --primary-foreground: #ffffff;
   --secondary: #e8eef5;
   --secondary-foreground: #173e5e;
   --muted: #eef2f7;
   --muted-foreground: #5b6b7c;
-  --accent: #eef2f7;
+  --accent: #e8eef5;
   --accent-foreground: #173e5e;
   --destructive: #c0392b;
   --border: #d5dee8;
   --input: #d5dee8;
   --ring: #173e5e;
+  /* Sidebar navy — Operate surface */
   --sidebar: #173f5f;
   --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #f5c518;
+  --sidebar-primary-foreground: #173e5e;
   --sidebar-accent: #1f5278;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #24557a;
-  /* Field accent yellow */
+  --sidebar-ring: #f5c518;
+  /* Field yellow */
   --brand-yellow: #f5c518;
   --brand-yellow-foreground: #173e5e;
+  /* Charts — navy → yellow scale */
+  --chart-1: #173e5e;
+  --chart-2: #2a6a94;
+  --chart-3: #f5c518;
+  --chart-4: #5b6b7c;
+  --chart-5: #d5dee8;
+}
+
+.dark {
+  --background: #0f1b2d;
+  --foreground: #f4f7fb;
+  --card: #173e5e;
+  --card-foreground: #f4f7fb;
+  --popover: #173e5e;
+  --popover-foreground: #f4f7fb;
+  --primary: #f5c518;
+  --primary-foreground: #173e5e;
+  --secondary: #1f5278;
+  --secondary-foreground: #f4f7fb;
+  --muted: #1f5278;
+  --muted-foreground: #b8c5d4;
+  --accent: #1f5278;
+  --accent-foreground: #f4f7fb;
+  --destructive: #e74c3c;
+  --border: rgb(255 255 255 / 12%);
+  --input: rgb(255 255 255 / 15%);
+  --ring: #f5c518;
+  --sidebar: #0f1b2d;
+  --sidebar-foreground: #f4f7fb;
+  --sidebar-primary: #f5c518;
+  --sidebar-primary-foreground: #0f1b2d;
+  --sidebar-accent: #173e5e;
+  --sidebar-accent-foreground: #f4f7fb;
+  --sidebar-border: rgb(255 255 255 / 12%);
+  --sidebar-ring: #f5c518;
+  --brand-yellow: #f5c518;
+  --brand-yellow-foreground: #0f1b2d;
+  --chart-1: #f5c518;
+  --chart-2: #2a6a94;
+  --chart-3: #e8eef5;
+  --chart-4: #5b6b7c;
+  --chart-5: #173e5e;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background font-sans text-foreground antialiased;
   }
   h1,
   h2,
-  h3 {
-    @apply font-semibold tracking-tight text-foreground;
+  h3,
+  h4 {
+    @apply font-heading font-semibold tracking-tight text-foreground;
   }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Signature: thin yellow rail under navy chrome */
+.brand-rail {
+  height: 3px;
+  background: var(--brand-yellow);
 }

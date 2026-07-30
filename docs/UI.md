@@ -1,34 +1,34 @@
-# UI design system (P8)
+# UI design system (P8 + enhance)
 
-## Goal
+## Direction
 
-Field-ready PE-SMKK UI: **shadcn-style primitives**, **IBM Plex Sans** (tegas), brand **navy + yellow + white** from monolit PKL.
+- **Surface:** Operate (app shell) + Configure (forms) + Decide (landing)
+- **Stack:** shadcn **base-lyra** preset (`buFywKm`) + Anthropic `frontend-design` skill
+- **Brand lock (monolit):** navy `#173e5e` / sidebar `#173f5f`, yellow `#f5c518`, white surfaces
+- **Type:** IBM Plex Sans (tegas lapangan) — not Inter default from preset
 
-## Brand
+## Signature
 
-| Token | Value | Use |
-|-------|-------|-----|
-| Primary / button | `#173e5e` | CTA, headers |
-| Sidebar | `#173f5f` | Nav shell |
-| Accent yellow | `#f5c518` | Stripe, badges, secondary CTA |
-| Surface | white / `#f4f7fb` | Cards, page bg |
-| Font | IBM Plex Sans + Mono | Body + code answers |
+Thin **yellow rail** under navy chrome (`.brand-rail`). No gradient SaaS hero sludge.
 
-## Stack
+## Tooling
 
-- Tailwind CSS v4 (`@import "tailwindcss"` in `globals.css`)
-- `class-variance-authority` + `clsx` + `tailwind-merge`
-- Radix Slot / Label / Separator
-- Lucide icons
-- Components under `apps/web/src/components/ui/*`
+```bash
+# skill (repo)
+npx skills add https://github.com/anthropics/skills --skill frontend-design -y
+
+# shadcn (apps/web only)
+cd apps/web
+npx shadcn@latest init --preset buFywKm --template next --pointer -y -f
+npx shadcn@latest add … -y
+```
+
+After init: **re-map** `globals.css` tokens to monolit navy/yellow (preset overwrites).
+
+## Components
+
+`apps/web/src/components/ui/*` — Button (yellow + asChild), Input, Card, Badge (status variants), …
 
 ## Shell
 
-- `AppSidebar` + `AppShell` — session via `/auth/me`, redirect login if 401
-- Nav mirrors monolit: Dashboard / Forms area / Projects / Users / Settings by role
-
-## Out of scope P8
-
-- Full admin tables (API already exists)
-- R2 upload UI (P5)
-- Chart dashboard (P5)
+`AppShell` + `AppSidebar` — session `/auth/me`, mobile tab strip, desktop sticky sidebar.
