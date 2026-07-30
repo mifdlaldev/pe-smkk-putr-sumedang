@@ -1,0 +1,21 @@
+# Cloudflare Worker — PE-SMKK API (Hono)
+name = "pe-smkk-api"
+main = "src/index.ts"
+compatibility_date = "2025-03-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+APP_VERSION = "0.1.0"
+# APP_ORIGIN set in .dev.vars / dashboard (CORS allowlist)
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pe-smkk-db"
+database_id = "00000000-0000-0000-0000-000000000001"
+migrations_dir = "../../packages/db/migrations"
+preview_database_id = "local-pe-smkk-db"
+
+# R2 placeholder — create bucket before production deploy
+# [[r2_buckets]]
+# binding = "DOCUMENTS"
+# bucket_name = "pe-smkk-documents"

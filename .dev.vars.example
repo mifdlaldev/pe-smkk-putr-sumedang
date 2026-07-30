@@ -1,0 +1,5 @@
+# Copy to apps/api/.dev.vars (or repo root .dev.vars) — NEVER commit real values.
+# Used by wrangler local dev only.
+
+# SESSION_SECRET=generate-a-long-random-string
+# APP_ORIGIN=http://localhost:3000

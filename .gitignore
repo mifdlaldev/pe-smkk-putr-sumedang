@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing / coverage
+coverage/
+
+# Next.js
+.next/
+out/
+dist/
+build/
+
+# Wrangler / Cloudflare local
+.wrangler/
+**/.wrangler/
+.mf/
+.open-next/
+.turbo/
+.vercel/
+**/worker-configuration.d.ts
+
+# Env & secrets (keep *.example tracked)
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.dev.vars
+*.pem
+**/credentials.json
+**/*-service-account*.json
+
+# Logs / OS / IDE
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.DS_Store
+.hermes/
+.cursor/
+.idea/
+*.swp
+
+# TypeScript
+*.tsbuildinfo

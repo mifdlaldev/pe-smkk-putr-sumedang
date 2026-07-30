@@ -1,0 +1,27 @@
+{
+  "name": "pe-smkk-putr-sumedang",
+  "private": true,
+  "version": "0.2.0",
+  "description": "PE-SMKK PUTR Sumedang — full Cloudflare monorepo (Next Pages + Hono Workers + D1 + R2)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @pe-smkk/api",
+    "dev:web": "npm run dev -w @pe-smkk/web",
+    "build:api": "npm run build -w @pe-smkk/api",
+    "build:web": "npm run build -w @pe-smkk/web",
+    "typecheck": "npm run typecheck -w @pe-smkk/shared && npm run typecheck -w @pe-smkk/db && npm run typecheck -w @pe-smkk/api && npm run typecheck -w @pe-smkk/web",
+    "db:generate": "npm run generate -w @pe-smkk/db",
+    "db:migrate:local": "npm run migrate:local -w @pe-smkk/api",
+    "test:api": "npm run test -w @pe-smkk/api"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "drizzle-orm": "^0.45.2"
+  }
+}
