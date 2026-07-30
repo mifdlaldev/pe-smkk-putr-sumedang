@@ -1,7 +1,7 @@
 # PE-SMKK PUTR Sumedang
 
 [![CI](https://github.com/mifdlaldev/pe-smkk-putr-sumedang/actions/workflows/ci.yml/badge.svg)](https://github.com/mifdlaldev/pe-smkk-putr-sumedang/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 [![Stack](https://img.shields.io/badge/stack-Cloudflare-F38020)](docs/ARCHITECTURE.md)
 
 **Field evaluation & project reporting platform** for PE SMKK / PUTR Sumedang (Indonesia).
@@ -149,4 +149,5 @@ Internal / portfolio development. See [CONTRIBUTING.md](CONTRIBUTING.md) and `AG
 
 ## License
 
-[MIT](LICENSE) © 2026 mifdlaldev / PE SMKK Sumedang context.
+**Proprietary** — personal internship / portfolio work of [mifdlaldev](https://github.com/mifdlaldev).  
+Not open source for reuse. See [LICENSE](LICENSE).

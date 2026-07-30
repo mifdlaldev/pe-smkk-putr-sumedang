@@ -5,8 +5,8 @@ compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-APP_VERSION = "0.1.0"
-# APP_ORIGIN set in .dev.vars / dashboard (CORS allowlist)
+APP_VERSION = "0.2.0"
+# APP_ORIGIN, SESSION_SECRET, EMAIL_DELIVERY in .dev.vars / dashboard
 
 [[d1_databases]]
 binding = "DB"

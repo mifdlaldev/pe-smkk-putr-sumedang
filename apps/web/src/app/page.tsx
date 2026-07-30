@@ -84,8 +84,11 @@ export default async function HomePage() {
       </section>
 
       <p style={{ marginTop: "2rem", fontSize: 13, opacity: 0.55 }}>
-        Legacy monolit archived out of tree. Spec: <code>openspec/</code> ·
-        Rules: <code>AGENTS.md</code>
+        <a href="/auth/login" style={{ color: "#93c5fd" }}>
+          Sign in
+        </a>
+        {" · "}
+        Spec: <code>openspec/</code> · Rules: <code>AGENTS.md</code>
       </p>
     </main>
   );

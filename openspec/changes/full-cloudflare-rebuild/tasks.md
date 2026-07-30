@@ -24,13 +24,15 @@
 
 ## P2 — Auth
 
-- [ ] Users table + password hashing
-- [ ] Login / logout / session middleware
-- [ ] Role + status gates
-- [ ] Rate limit login
-- [ ] Password reset token flow (no plaintext password email)
-- [ ] Authz helpers + tests
-- [ ] Web login pages wired to API
+- [x] Users table + password hashing (PBKDF2-SHA256 Web Crypto)
+- [x] Login / logout / session middleware (HttpOnly cookie)
+- [x] Role + status gates (`requireSession` / `requireRole`)
+- [x] Rate limit login (+ reset endpoints)
+- [x] Password reset token flow (no plaintext password email)
+- [x] Authz helpers + tests (crypto + cookies unit)
+- [x] Web login pages wired to API (`/auth/login`, `/auth/reset`)
+- [x] Authz matrix doc `openspec/specs/authz.md`
+- [x] License: proprietary (not MIT)
 
 ## P3 — Admin core
 

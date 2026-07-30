@@ -1,21 +1,33 @@
-MIT License
+PROPRIETARY SOFTWARE LICENSE
 
-Copyright (c) 2026 mifdlaldev
+Copyright (c) 2026 mifdlaldev. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software and associated documentation files (the "Software") are the
+personal internship / portfolio work of mifdlaldev ("Author").
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. PERMISSION
+   Viewing the public source for evaluation (e.g. hiring, portfolio review)
+   is allowed. No other rights are granted by default.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. RESTRICTIONS
+   Without prior written permission from the Author, you may NOT:
+   - use the Software in production or commercial systems;
+   - copy, modify, merge, publish, distribute, sublicense, or sell copies;
+   - rebrand or present the Software as your own product;
+   - remove or alter copyright notices.
+
+3. INTERNSHIP CONTEXT
+   Domain concepts relate to PE SMKK / PUTR Sumedang internship work.
+   Operational deployment rights for the original agency remain separate
+   and are not granted to third parties by this license.
+
+4. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED. THE AUTHOR IS NOT LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+   LIABILITY ARISING FROM USE OF THE SOFTWARE.
+
+5. CONTACT
+   For permission requests: https://github.com/mifdlaldev
+
+By cloning, forking, or otherwise obtaining a copy of this repository,
+you acknowledge these terms.
