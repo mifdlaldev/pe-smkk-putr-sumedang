@@ -18,7 +18,7 @@
     "test:api": "npm run test -w @pe-smkk/api"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "license": "MIT",
   "dependencies": {

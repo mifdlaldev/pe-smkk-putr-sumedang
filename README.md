@@ -86,7 +86,7 @@ AGENTS.md              Rules for humans + AI agents
 
 ## Quick start (local)
 
-**Requirements:** Node.js ≥ 20, npm.
+**Requirements:** Node.js ≥ 22, npm.
 
 ```bash
 git clone https://github.com/mifdlaldev/pe-smkk-putr-sumedang.git
